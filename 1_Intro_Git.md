@@ -67,8 +67,19 @@ Hay determinadas palabras que se usan frecuentemente en git para señalar errore
   - Cuando se usa **confirmar** significa que lo toma y va a la base de datos para que lo cambios realizados puedan ser vistos por otros usuarios.
 - **Rama**
   - Serie ocn nombre de confirmaciones vinculadas.
-  - La rama predeterminada, que se crea al inicializar un repositorio, se denomina 
+  - La rama predeterminada, que se crea al inicializar un repositorio, se denomina *nivel superior*. Este nivel se le denomina *HEAD* 
+  - Esto permite que cada desarrollador cuente con una rama de trabajo y contribuyan de manera independiente o conjunta cuando se haga una fusión de los cambios pero esta siempre depende de la rama principal por lo que deben estar al tanto de las actualizaciones que reciba la rama principal.
+- **Remoto**
+  - "referencia con nombre a otro respositorio Git. Cuando se crear un repositorio, Git crear un remoto denominado *origin*, que es el remoto predeterminado par ala operaciones de envío e incorporación de cambios."
+- **Comandos, subcomandos y opciones**
+  - Las operaciones de git se realizan mediante comandos como 
+    - > git push
+    - > git pull
+    - **git es el comando** 
+    - *El subcomando especifica la operación que quiere que Git relice.*
+    - Los **subcomandos** suelen ir acompañados de opciones, que usan guines (-) (--) por ejemplo *git commit -m ""*
 
+**NOTA:** *en los siguientes temas entenderás los comandos de git o si no consulta el glosario de*
 
 # Ejercicio: Prueba de Git
 
