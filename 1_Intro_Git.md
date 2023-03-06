@@ -10,6 +10,7 @@
   - [Ventajas de git](#ventajas-de-git)
   - [Terminología de Git](#terminología-de-git)
 - [Ejercicio: Prueba de Git](#ejercicio-prueba-de-git)
+  - [Creando el primer repositorio](#creando-el-primer-repositorio)
 - [Comandos básicos de Git](#comandos-básicos-de-git)
 - [Prueba de conocimientos](#prueba-de-conocimientos)
 - [Resumen](#resumen)
@@ -82,6 +83,21 @@ Hay determinadas palabras que se usan frecuentemente en git para señalar errore
 **NOTA:** *en los siguientes temas entenderás los comandos de git o si no consulta el glosario de*
 
 # Ejercicio: Prueba de Git
+
+## Creando el primer repositorio
+
+1. Instala git en tu computadora [downloads](https://git-scm.com/downloads)
+2. Ejecuta el siguiente comando de git 
+   1. Linux y macOS
+      1. Abre la terminal y ejecuta
+      2. > git --version
+   2. Windows
+      1. Abre git bash y ejecuta 
+      2. > git --version
+3. Debería ver na salida similar a este ejemplo:
+   > git version #.#.#
+4. Para configurar Git, debe definir algunas variables globales de nombre y correo. Ambas necesarias para realizar cambios y confirmaciones.
+5. 
 
 # Comandos básicos de Git
 
