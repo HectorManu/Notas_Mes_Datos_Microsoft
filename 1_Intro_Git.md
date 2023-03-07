@@ -11,6 +11,7 @@
   - [Terminología de Git](#terminología-de-git)
 - [Ejercicio: Prueba de Git](#ejercicio-prueba-de-git)
   - [Creando el primer repositorio](#creando-el-primer-repositorio)
+  - [Empezar un nuevo repositorio local](#empezar-un-nuevo-repositorio-local)
 - [Comandos básicos de Git](#comandos-básicos-de-git)
 - [Prueba de conocimientos](#prueba-de-conocimientos)
 - [Resumen](#resumen)
@@ -86,18 +87,47 @@ Hay determinadas palabras que se usan frecuentemente en git para señalar errore
 
 ## Creando el primer repositorio
 
-1. Instala git en tu computadora [downloads](https://git-scm.com/downloads)
-2. Ejecuta el siguiente comando de git 
+1. Instala git en tu computadora [downloads](https://git-scm.
+2. com/downloads)
+3. Ejecuta el siguiente comando de git 
    1. Linux y macOS
       1. Abre la terminal y ejecuta
       2. > git --version
    2. Windows
       1. Abre git bash y ejecuta 
       2. > git --version
-3. Debería ver na salida similar a este ejemplo:
+4. Debería ver na salida similar a este ejemplo:
    > git version #.#.#
-4. Para configurar Git, debe definir algunas variables globales de nombre y correo. Ambas necesarias para realizar cambios y confirmaciones.
-5. 
+5. Para configurar Git, debe definir algunas variables globales de nombre y correo. Ambas necesarias para realizar cambios y confirmaciones.
+   1. git config --global user.name "<USER_NAME>"
+   2. git config --global user.email "<USER_EMAIL>"
+   3. **Para observar los cambios realizados ejecute el siguiente comando:**
+      1. > git config --list
+
+## Empezar un nuevo repositorio local
+
+1. Crear una nueva carpeta a través de la terminal con el comando:
+   1. mkdir *"nombre_carpeta"*
+2. Desplazarse hacia la carpeta creada con el comando
+   1. cd *"nombre_carpeta"*
+3. Ahora se inicializará el reposotio y estableerá el nombre d ela rama predeterminada main:
+   1. Asumiento esta por encima de la versión 2.28.0 de Git ejecute el siguiente comando:
+      1. git init --initial-branch=main
+      2. git init -b main
+4. Para saber el estado del arbol ejecute 
+   1. git status
+   2. La salida que tendrá será una pareceda a la siguiente
+```
+On branch master <br>
+
+No commit yet
+
+nothng to commit (create/copy fules and use "git add" to track)
+
+```
+5. Use e comando ls para mostrar el estado del árbol de trabajo:
+   1. ls -a 
+
 
 # Comandos básicos de Git
 
