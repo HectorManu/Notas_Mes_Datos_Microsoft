@@ -93,3 +93,17 @@ SELECT CAST(ProductID AS varchar(4)) + ': ' + Name AS ProductName
 FROM Production.Product;
 ```
 
+
+
+# Introducción a las consultas con Trannsact-SQL
+
+## Limitación de los resultados ordenados
+- TOP es una extensión propiedad de Microsoft de la cáusula SELECT. La cláusula TOP le permitirá especificar cuátas filas se van a devlover, ya sea como un entero positivo o como un porcentaje de todas las filas calificadas. El número de filas se puede especificar como una constante o como una expresión. La cláusula TOP se usa con más frecuencia con ORDER BY, pero se puede usar con datos no ordenados.
+
+```sql
+SELECT TOP (N) <column_list>
+FROM <table_source>
+WHERE <search_condition>
+ORDER BY <order list> [ASC|DESC];
+```
+
