@@ -774,3 +774,25 @@ SELECT Category, AVG(Price) FROM Store.Product GROUP BY Category WHERE AVG(Price
 
 SELECT Category, AVG(Price) FROM Store.Product GROUP BY Category HAVING AVG(Price) > 10.00;
 Correcto. Use una cláusula HAVING para filtrar grupos.
+
+
+# ejercicio de encontrar le máximo en una base de datos
+
+Para obtener el máximo de ventas que ha realizado un vendedor, es necesario realizar una consulta a dos entidades en SQL que contengan información sobre los vendedores y sus ventas.
+
+Suponiendo que se tienen dos tablas llamadas "vendedores" y "ventas", donde la tabla "vendedores" contiene información sobre los vendedores y la tabla "ventas" contiene información sobre las ventas realizadas por cada vendedor, se puede realizar la siguiente consulta:
+
+```sql
+
+SELECT vendedores.nombre, MAX(ventas.monto) as maximo_venta
+FROM vendedores
+INNER JOIN ventas ON vendedores.id = ventas.id_vendedor
+GROUP BY vendedores.nombre
+ORDER BY maximo_venta DESC
+LIMIT 1;
+
+```
+
+En esta consulta se realiza un INNER JOIN entre las tablas "vendedores" y "ventas" utilizando la columna "id" como llave primaria y la columna "id_vendedor" como llave foránea. Luego se agrupa la información por el nombre del vendedor y se obtiene el máximo valor de la columna "monto" utilizando la función MAX().
+
+Finalmente, se ordena la información de manera descendente por el máximo valor de ventas y se limita el resultado a un solo registro utilizando la cláusula LIMIT 1. Esto devuelve el nombre del vendedor que ha realizado el mayor número de ventas y el monto máximo que ha vendido.

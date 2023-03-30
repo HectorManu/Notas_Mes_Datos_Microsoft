@@ -111,7 +111,7 @@ Hay determinadas palabras que se usan frecuentemente en git para señalar errore
 2. Desplazarse hacia la carpeta creada con el comando
    1. cd *"nombre_carpeta"*
 3. Ahora se inicializará el reposotio y estableerá el nombre d ela rama predeterminada main:
-   1. Asumiento esta por encima de la versión 2.28.0 de Git ejecute el siguiente comando:
+   1. Asumiento esta por encibma de la versión 2.28.0 de Git ejecute el siguiente comando:
       1. git init --initial-branch=main
       2. git init -b main
 4. Para saber el estado del arbol ejecute 
