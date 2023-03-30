@@ -750,7 +750,7 @@ Correcto. Use una cláusula HAVING para filtrar grupos.
 
 1. Ejecute la consulta siguiente: SELECT OrderNo, CHOOSE(Status, 'Ordered', 'Shipped', 'Delivered') AS OrderState FROM Sales.Order; Which OrderState. ¿Qué valor OrderState se devuelve para las filas con un valor status de 2?
 
-Enviado
+**Enviado**
 Correcto. CHOOSE devuelve el valor en función de su posición ordinal basada en 1.
 
 
