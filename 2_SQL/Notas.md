@@ -239,3 +239,169 @@ Por lo tanto, en esta consulta, se seleccionan los nombres de todos los empleado
 
 
 
+
+
+# Escritura de subcontuldas en T-SQL 
+
+Transact-SQL admite la creación de *subcontulda*, en las que una conutla interna devuelve su resultado a una consulta externa.
+
+
+## Trabajar con subconsultas
+- Una subconsulta es una instrucción SELECT anidada o incrustada en otra consulta.
+- El propósito de una subconsulta es devolver resultados a la consulta externa. La forma de los resultados determinará si la subconsulta es una subconsulta escalar o multivalor:
+  - Las escalres devuelven un solo valor, las externas. La consulta externas deben procesar un único resultado.
+  - Las multivalor devuelven un resultado muy similar a una tabla de una sola columna. esetas deben poder procesar varios valores.
+
+Además d ela elcción entre subconsultas escalres y multivalor, las subconsultas pueden ser independientes o pueden correlacionarse con la consula externa:
+  - Las subconsultas correacionadas haen referencia a una o varias columnas de la consulta externa y, por tanto, dependen de ella las subconsuoltas correlacionadas no se pueden ejecutar por separado desde la ocnsulta externa.
+
+
+## Usar subconsultas escalars o multivalor 
+
+### Suconsultas escalares
+
+```sql
+SELECT MAX(SalesOrderID)
+FROM Sales.SalesOrderHeader
+```
+
+Esta consulta devuelve un valor único que indica el valor más alto de **OrderID** de la tabla **SalesOrderHeader**.
+
+Para obtener más detalles del peeido entonces hay que filtrar mediante **SalesOrderDatails** en funcón del valor devuelto por la consulta anterior. Puede realizar esta tarea anidando la consulta para recuperar el valor máximo de **SalesOrderID** dentro de la cláusula WHERE  de una consulta que recupera los detalles del pedido.
+
+
+```sql
+SELECT SalesOrderID, ProductID, OrderQty
+FROM Sales.SalesOrderDetail
+WHERE SalesOrderID = 
+   (SELECT MAX(SalesOrderID)
+    FROM Sales.SalesOrderHeader);
+```
+
+se compone de una cláusula SELECT, una cláusula FROM, una cláusula WHERE y una subconsulta.
+
+La cláusula SELECT especifica las columnas que se mostrarán en el resultado de la consulta. En este caso, se seleccionan las columnas SalesOrderID, ProductID y OrderQty de la tabla "SalesOrderDetail" de la base de datos "Sales".
+
+La cláusula FROM especifica la tabla "SalesOrderDetail" de la que se seleccionarán los datos.
+
+La cláusula WHERE filtra las filas de la tabla "SalesOrderDetail" en función de una condición. En este caso, la condición es SalesOrderID = (SELECT MAX(SalesOrderID) FROM Sales.SalesOrderHeader). Esto significa que solo se seleccionarán las filas en las que la columna SalesOrderID tenga el valor que se devuelve de la subconsulta. En otras palabras, solo se seleccionarán los detalles del pedido correspondientes al último pedido realizado en la tabla de encabezados de pedidos "SalesOrderHeader".
+
+La subconsulta (SELECT MAX(SalesOrderID) FROM Sales.SalesOrderHeader) se ejecuta primero. Esta subconsulta selecciona el valor máximo de la columna SalesOrderID de la tabla de encabezados de pedidos "SalesOrderHeader". Este valor máximo es el ID del último pedido realizado en la tabla de encabezados de pedidos.
+
+La consulta principal se ejecuta a continuación, utilizando el valor máximo de la columna SalesOrderID devuelto por la subconsulta como el valor que se debe comparar con la columna SalesOrderID en la tabla "SalesOrderDetail". Solo las filas de la tabla "SalesOrderDetail" que corresponden al último pedido realizado se seleccionan y se muestran en el resultado de la consulta.
+
+En resumen, esta consulta devuelve los detalles del pedido correspondientes al último pedido realizado en la tabla de encabezados de pedidos "SalesOrderHeader".
+
+#### Subconsultas multivalor
+
+Una subconsulta multivalor es adecuada para devolver resultados mediante el operaod IN. En el ejemplo hipotético siguiente se devuelven los valores **CustomerID** y **SalesOrderID** de todos los pedidos realizaod por los clientes de Canaá.
+
+```sql
+SELECT CustomerID, SalesOrderID
+FROM Sales.SalesOrderHeader
+WHERE CustomerID IN (
+    SELECT CustomerID
+    FROM Sales.Customer
+    WHERE CountryRegion = 'Canada');
+```
+
+se compone de una cláusula SELECT, una cláusula FROM, una cláusula WHERE y una subconsulta.
+
+La cláusula SELECT especifica las columnas que se mostrarán en el resultado de la consulta. En este caso, se seleccionan las columnas CustomerID y SalesOrderID de la tabla "SalesOrderHeader" de la base de datos "Sales".
+
+La cláusula FROM especifica la tabla "SalesOrderHeader" de la que se seleccionarán los datos.
+
+La cláusula WHERE filtra las filas de la tabla "SalesOrderHeader" en función de una condición. En este caso, la condición es CustomerID IN (SELECT CustomerID FROM Sales.Customer WHERE CountryRegion = 'Canada'). Esto significa que solo se seleccionarán las filas en las que la columna CustomerID esté presente en la lista de identificadores de clientes que se devuelven de la subconsulta. En otras palabras, solo se seleccionarán los encabezados de pedidos realizados por clientes que residan en Canadá.
+
+La subconsulta (SELECT CustomerID FROM Sales.Customer WHERE CountryRegion = 'Canada') se ejecuta primero. Esta subconsulta selecciona todos los identificadores de clientes de la tabla "Customer" de la base de datos "Sales" que residen en Canadá.
+
+La consulta principal se ejecuta a continuación, utilizando la lista de identificadores de clientes que se devuelve de la subconsulta como la lista de clientes a seleccionar. Solo se seleccionan los encabezados de pedidos que corresponden a los clientes de Canadá, y se muestran los identificadores de cliente y los identificadores de pedido de cada pedido realizado por estos clientes.
+
+En resumen, esta consulta devuelve los identificadores de cliente y los identificadores de pedido de todos los pedidos realizados por clientes que residan en Canadá.
+
+- La consulta anterior se puede elaborar de una **manera más simple**
+```sql
+SELECT c.CustomerID, o.SalesOrderID
+FROM Sales.Customer AS c
+JOIN Sales.SalesOrderHeader AS o
+    ON c.CustomerID = o.CustomerID
+WHERE c. CountryRegion = 'Canada';
+```
+
+**¿Cómo se decide si se escribe una consulta que implica varias tablas como JOIN  o con una subconsulta?**
+- A veces, solo depende de con qué se siente más cómodo. La mayoría de las consultas anidadas que se convierten fácilmente eon JOIN  realmente se convertirán en JOIN  de forma interna. En el caso de estas consultas, no hay ninguna diferencia real al escribir la consulat de una manera frete a otra. 
+- Una restricción que debe tener en cuenta es que cuando se usea una consulta anidada los resultados devueltos al cliente solo pueden incluir columnas de la consulta externa. Por lo tanto, si tiene que devoler columnas de ambas tablas, debe escribir la consulta mediante JOIN. 
+- Por último, hay situaciones en las que la consulta interna necesita realizar operaciones mucho más complicadas que las recuperaciones simples de nuestros ejemplos. La reescritura se subconsultas complejas mediante JOIN  puede ser difícil. Para muchos desarroladores de SQL, las subconsultas funcionan mejor para un proceamiento complicado, ya que permite dividir el procesamiento en pasos más pequeños. 
+
+
+### Usar subconsultas independientes o correlacionadas
+
+#### Trabajar con subconsultas correlacionadas
+
+EStas igual son instrucciones SELECT anidads dentro de una consulta **externa**. 
+- Consideraciones especiales cuando se usa subconsultas correlacionadas:
+  - No se pueden ejecutar por separado desde la consulta externa. Esta restricción complica las pruebas y la derpuración.
+  - A diferencia de las subconsultas independientes, que se procesan una vez, las subconsultas correlaciondas se ajecutarán varias veces. Lógicamente, la consula extenra se ejecutar primer y, para cada fila devuelta se preocesa la consutla interna.
+
+```sql
+SELECT SalesOrderID, CustomerID, OrderDate
+FROM SalesLT.SalesOrderHeader AS o1
+WHERE SalesOrderID =
+    (SELECT MAX(SalesOrderID)
+     FROM SalesLT.SalesOrderHeader AS o2
+     WHERE o2.CustomerID = o1.CustomerID)
+ORDER BY CustomerID, OrderDate;
+```
+
+Esta consulta se compone de una cláusula SELECT, una cláusula FROM, una cláusula WHERE, una subconsulta y una cláusula ORDER BY.
+
+La cláusula SELECT especifica las columnas que se mostrarán en el resultado de la consulta. En este caso, se seleccionan las columnas SalesOrderID, CustomerID y OrderDate de la tabla "SalesOrderHeader" de la base de datos "SalesLT".
+
+La cláusula FROM especifica la tabla "SalesOrderHeader" de la que se seleccionarán los datos, y se le da un alias de o1.
+
+La cláusula WHERE filtra las filas de la tabla "SalesOrderHeader" en función de una condición. En este caso, la condición es SalesOrderID = (SELECT MAX(SalesOrderID) FROM SalesLT.SalesOrderHeader AS o2 WHERE o2.CustomerID = o1.CustomerID). Esto significa que solo se seleccionarán las filas en las que el valor de la columna SalesOrderID sea igual al valor máximo de SalesOrderID para el cliente correspondiente. La subconsulta se utiliza para obtener el valor máximo de SalesOrderID para cada cliente, y la condición o2.CustomerID = o1.CustomerID se utiliza para comparar el valor del cliente en la subconsulta con el valor del cliente en la tabla principal.
+
+La subconsulta (SELECT MAX(SalesOrderID) FROM SalesLT.SalesOrderHeader AS o2 WHERE o2.CustomerID = o1.CustomerID) se ejecuta primero para cada fila de la tabla principal. Esta subconsulta selecciona el valor máximo de SalesOrderID de la tabla "SalesOrderHeader" de la base de datos "SalesLT" para el cliente correspondiente.
+
+La consulta principal se ejecuta a continuación, utilizando el valor máximo de SalesOrderID devuelto por la subconsulta como la condición para seleccionar la fila correspondiente de la tabla principal. Solo se seleccionan los encabezados de pedidos que corresponden al valor máximo de SalesOrderID para cada cliente.
+
+La cláusula ORDER BY se utiliza para ordenar los resultados por el valor de la columna CustomerID, y luego por el valor de la columna OrderDate en orden ascendente.
+
+En resumen, esta consulta devuelve los identificadores de pedido, identificadores de cliente y fechas de pedido para el pedido más reciente realizado por cada cliente en la tabla "SalesOrderHeader" de la base de datos "SalesLT", ordenados por el identificador de cliente y luego por la fecha de pedido.
+
+
+
+
+
+
+##### Escritura de subconsultas correlacionadas
+Para escribir subconsultas correlacionadas, tenga en cuenta las siguientes directrices:
+
+Escriba la consulta externa para aceptar el resultado devuelto adecuado de la consulta interna. Si la consulta interna es escalar, puede usar operadores de igualdad y comparación, como =, <, > y <>, en la cláusula WHERE. Si la consulta interna puede devolver varios valores, use un predicado IN. Cree un plan para controlar los resultados NULL.
+Identifique la columna de la consulta externa a la que hará referencia la subconsulta correlacionada. Declare un alias para la tabla que es el origen de la columna en la consulta externa.
+Identifique la columna de la tabla interna que se comparará con la columna de la tabla externa. Cree un alias para la tabla de origen, como hizo para la consulta externa.
+Escriba la consulta interna para recuperar valores de su origen, en función del valor de entrada de la consulta externa. Por ejemplo, use la columna externa en la cláusula WHERE de la consulta interna.
+La correlación entre las consultas interna y externa se produce cuando la consulta interna hace referencia al valor externo para su comparación. Es esta correlación la que proporciona a la subconsulta su nombre.
+
+
+##### Comprobación de conocimiento:
+
+1. Una consulta con una subconsulta en la cláusula WHERE devuelve el siguiente error: mensaje 512, nivel 16, estado 1, línea 17 La subconsulta ha devuelto más de 1 valor, lo que no es correcto cuando va a continuación de =, !=, <, <= , >, >= o cuando se usa como una expresión. ¿Qué se puede hacer para solucionar este error?
+
+Asegúrese de que la subconsulta no usa SELECT * en la lista SELECT.
+
+Cambie el operador que presenta la subconsulta a IN o NOT IN
+Correcto. El error indica que la subconsulta devuelve más de un valor y no se puede comparar una lista de valores con operadores de comparación.
+
+
+Agregar DISTINCT a la lista SELECT
+2. ¿Cuál de las afirmaciones siguientes es correcta con respecto a las subconsultas correlacionadas?
+
+Una subconsulta correlacionada devuelve un único valor escalar
+
+Una subconsulta correlacionada devuelve varias columnas y filas
+
+Una subconsulta correlacionada hace referencia a un valor en la consulta externa
+Correcto. Una subconsulta correlacionada hace referencia a un valor en la consulta externa.
+
+
