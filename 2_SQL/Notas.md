@@ -405,3 +405,372 @@ Una subconsulta correlacionada hace referencia a un valor en la consulta externa
 Correcto. Una subconsulta correlacionada hace referencia a un valor en la consulta externa.
 
 
+
+
+# Uso de funciones integradas y GROUP BY en Transact-AQL
+
+## Introducción 
+
+Al recueprar datos de tabas de una base de datos, suele ser útil poder manipular valores de datos mediante *funciones*; para dar formato, convertir, agregar o modificar de cualquier otro modo de salida de consulta. Además, al agregar datos, a menudo querrá *agrupar* los resultados y mostara agregaciones para cada groupo; por ejempllo, para ver los valores totales por categoría. 
+
+
+## categorizar funciones integradas
+Transact-SQL  incluye muchas funciones integradas, desde funciones que convierten tipos de datos hasta funcinoes que agregan y analizan grupos de filas. 
+
+Las funcioens de T-SQL se puden clasificar de la siguiente manera:
+
+**CAtegoría de la función**  | **Descripción**
+--- | ---
+Escalar | Opera sobre un solo valor y devuelve otro valor. 
+Lógicos | Compara varios valores para determinar una única salida. 
+Clasificación |  Opera sobre una partición conjunto de filas
+Conjunot de filas | Devuelve una tabla virtual que se puede usar en una cláusula Fom de una instrucción T-SQL.
+Agregado | Toma uno o vaiors valors de entrada y devuelve un único valor de resumen.
+
+
+## Usar funciones escalares
+Las funcioes escalares deuelven un valor único y normalmente funcionan en una sola fila. El númeor de valores de entrada que toman puede ser cero, uno, o varios. Dado que las funcinoes escalares **siempre devuelven un solo valor**, *se pueden usar en cualquier lugar en el que se necesite un único valor*. SE usar normalmente en cláusulas SELECT y predicaod de cláusula  WHERE. También se pueden usar en clásulas SET  de una isntrucción UPDATE.
+ las funcioens escalare sintegradas se puden organizar en muchas categorías, como cadena, conversión, lógica matemática y otras. En este módulo se explican algunas funcinoes escalares comunes.
+ Esetas son algunas de las ocnsideraciones que hay que tener en cuenta al usar funciones escalares
+
+
+- Determinismo: si la funcioens devuelve el mismo valor para el mismo estado de entrada y base de datos cada vez que se llama, se dice que es I determinista .
+- Intecalación: cuando se usan fucinoes que manipulan datos de carcteres, 'qué intercalación se usará? Aguans funcies usea la intercalación del valor de entrada, otros usan la intercalación de la base d edatos si no se proporciona ninguna intrcalación de entrada.
+  
+
+### Ejemplos de funcioens escalares
+
+Se enumeraón más de 200 funciones escalares que abarcan varias categorías, entre la que incluyen las siguites:
+1. Funcinoes de configuración 
+2. de conversión 
+3. cursores
+4. fecha y hora
+5. matemáticas
+6. metadatos
+7. seguridad
+8. cadena
+9. sistema
+10. estadísticas del sistema
+11. de texto y de imagen
+
+#### Ejemplo hipotético siguiente se usan **varias funciones de fecha y hora**
+La consulta tiene como objetivo mostrar una serie de detalles relacionados con la fecha de los pedidos de venta almacenados en la tabla SalesOrderHeader de la base de datos Sales. Cada columna seleccionada proporciona un detalle específico relacionado con la fecha de pedido.
+
+```sql
+SELECT  SalesOrderID,
+    OrderDate,
+        YEAR(OrderDate) AS OrderYear,
+        DATENAME(mm, OrderDate) AS OrderMonth,
+        DAY(OrderDate) AS OrderDay,
+        DATENAME(dw, OrderDate) AS OrderWeekDay,
+        DATEDIFF(yy,OrderDate, GETDATE()) AS YearsSinceOrder
+FROM Sales.SalesOrderHeader;
+```
+
+A continuación, se explican los pasos que realiza esta consulta:
+
+SELECT: La consulta comienza con una instrucción SELECT que indica las columnas que se desean mostrar en el resultado final. En este caso, la consulta selecciona las columnas SalesOrderID y OrderDate, así como varias columnas que se generan a partir de la fecha de pedido.
+
+FROM: La cláusula FROM especifica la tabla SalesOrderHeader de la base de datos Sales.
+
+YEAR: La función YEAR extrae el año de la fecha del pedido en la columna OrderDate. El resultado se almacena en una nueva columna llamada OrderYear.
+
+DATENAME: La función DATENAME se utiliza dos veces en esta consulta. La primera instancia se utiliza para extraer el nombre del mes de la fecha del pedido. El resultado se almacena en una nueva columna llamada OrderMonth. La segunda instancia se utiliza para extraer el nombre del día de la semana de la fecha del pedido. El resultado se almacena en una nueva columna llamada OrderWeekDay.
+
+DAY: La función DAY se utiliza para extraer el día del mes de la fecha del pedido en la columna OrderDate. El resultado se almacena en una nueva columna llamada OrderDay.
+
+DATEDIFF: La función DATEDIFF se utiliza para calcular la cantidad de años que han pasado desde el pedido. La consulta utiliza la fecha actual GETDATE() como segundo argumento de la función, lo que permite calcular la diferencia en años entre la fecha del pedido y la fecha actual. El resultado se almacena en una nueva columna llamada YearsSinceOrder.
+
+Resultado: El resultado final es una tabla con seis columnas: SalesOrderID, OrderDate, OrderYear, OrderMonth, OrderDay y OrderWeekDay, YearsSinceOrder. Cada fila muestra información detallada sobre un pedido de venta, incluyendo su fecha, año, mes, día del mes, día de la semana y años transcurridos desde que se realizó el pedido.
+
+```sql
+SELECT TaxAmt,
+       ROUND(TaxAmt, 0) AS Rounded,
+       FLOOR(TaxAmt) AS Floor,
+       CEILING(TaxAmt) AS Ceiling,
+       SQUARE(TaxAmt) AS Squared,
+       SQRT(TaxAmt) AS Root,
+       LOG(TaxAmt) AS Log,
+       TaxAmt * RAND() AS Randomized
+FROM Sales.SalesOrderHeader;
+```
+
+
+La consulta selecciona varias columnas de la tabla SalesOrderHeader y realiza una serie de cálculos sobre la columna TaxAmt:
+
+TaxAmt es la columna que almacena el importe de impuestos de cada orden de venta.
+ROUND(TaxAmt, 0) redondea el valor de TaxAmt al número entero más cercano.
+FLOOR(TaxAmt) devuelve el valor entero más grande que sea menor o igual que TaxAmt.
+CEILING(TaxAmt) devuelve el valor entero más pequeño que sea mayor o igual que TaxAmt.
+SQUARE(TaxAmt) devuelve el cuadrado de TaxAmt.
+SQRT(TaxAmt) devuelve la raíz cuadrada de TaxAmt.
+LOG(TaxAmt) devuelve el logaritmo natural de TaxAmt.
+TaxAmt * RAND() devuelve un valor aleatorio entre 0 y 1, multiplicado por TaxAmt.
+En resumen, la consulta selecciona información sobre los impuestos de las órdenes de venta y realiza una serie de cálculos matemáticos sobre los valores de impuestos.
+
+
+```sql
+SELECT  CompanyName,
+        UPPER(CompanyName) AS UpperCase,
+        LOWER(CompanyName) AS LowerCase,
+        LEN(CompanyName) AS Length,
+        REVERSE(CompanyName) AS Reversed,
+        CHARINDEX(' ', CompanyName) AS FirstSpace,
+        LEFT(CompanyName, CHARINDEX(' ', CompanyName)) AS FirstWord,
+        SUBSTRING(CompanyName, CHARINDEX(' ', CompanyName) + 1, LEN(CompanyName)) AS RestOfName
+FROM Sales.Customer
+```
+
+
+Esta consulta realiza varias operaciones en la columna "CompanyName" de la tabla "Sales.Customer". Cada operación se describe a continuación:
+
+La función "UPPER" convierte el valor de la columna "CompanyName" en mayúsculas y se asigna a la columna "UpperCase".
+
+La función "LOWER" convierte el valor de la columna "CompanyName" en minúsculas y se asigna a la columna "LowerCase".
+
+La función "LEN" devuelve la longitud del valor en la columna "CompanyName" y se asigna a la columna "Length".
+
+La función "REVERSE" invierte el orden de los caracteres en el valor de la columna "CompanyName" y se asigna a la columna "Reversed".
+
+La función "CHARINDEX" devuelve la posición del primer espacio en blanco en el valor de la columna "CompanyName" y se asigna a la columna "FirstSpace". Si no hay un espacio en blanco, devuelve 0.
+
+La función "LEFT" devuelve la parte izquierda del valor en la columna "CompanyName" hasta el primer espacio en blanco y se asigna a la columna "FirstWord".
+
+La función "SUBSTRING" devuelve la parte del valor en la columna "CompanyName" que sigue al primer espacio en blanco y se asigna a la columna "RestOfName".
+
+Finalmente, la consulta selecciona todas las columnas que se han calculado y las devuelve en una única tabla.
+
+
+##### Funciones lógicas
+
+###### IF
+
+```sql
+SELECT AddressType,
+      IIF(AddressType = 'Main Office', 'Billing', 'Mailing') AS UseAddressFor
+FROM Sales.CustomerAddress;
+```
+Esta consulta devuelve dos columnas de la tabla "Sales.CustomerAddress":
+
+"AddressType": el tipo de dirección.
+
+"UseAddressFor": una nueva columna que se calcula utilizando la función "IIF".
+
+La función "IIF" es una función condicional que devuelve un valor según una expresión booleana. En este caso, la expresión es "AddressType = 'Main Office'", lo que significa que si el valor de "AddressType" es "Main Office", entonces el valor de "UseAddressFor" será "Billing". De lo contrario, el valor de "UseAddressFor" será "Mailing".
+
+Por lo tanto, para cada fila en la tabla "Sales.CustomerAddress", la función "IIF" evalúa si el valor de "AddressType" es "Main Office" o no y devuelve el valor correspondiente en la columna "UseAddressFor".
+
+La consulta devuelve ambas columnas para todas las filas de la tabla "Sales.CustomerAddress".
+
+###### CHOOSE
+
+```sql
+SELECT SalesOrderID, Status,
+CHOOSE(Status, 'Ordered', 'Shipped', 'Delivered') AS OrderStatus
+FROM Sales.SalesOrderHeader;
+```
+Esta consulta utiliza la función "CHOOSE" para devolver una cadena de caracteres basada en el valor de la columna "Status" en la tabla "Sales.SalesOrderHeader". La consulta se describe a continuación:
+
+La consulta selecciona las columnas "SalesOrderID" y "Status" de la tabla "Sales.SalesOrderHeader".
+
+La función "CHOOSE" toma la columna "Status" como su primer argumento y devuelve una cadena de caracteres basada en su valor.
+
+Si el valor de "Status" es 1, la función "CHOOSE" devuelve 'Ordered'. Si es 2, devuelve 'Shipped'. Si es 3, devuelve 'Delivered'.
+
+El resultado de la función "CHOOSE" se asigna a una columna llamada "OrderStatus".
+
+La consulta devuelve las columnas "SalesOrderID", "Status" y "OrderStatus" en una única tabla.
+
+En resumen, esta consulta crea una nueva columna llamada "OrderStatus" que contiene el estado de la orden ("Ordered", "Shipped" o "Delivered") basado en el valor de la columna "Status".
+
+
+
+## Utilizar funcinoes de clasificación y conjunto de filas
+
+
+- Las vuncinoes de clasificación y conjunto de filas no son funcinoes escalares porque no devuelven un solo valor. Estas funcnioes aceptan un conjunto de filas como entrada y devuelven un conjunto de filas como salida.
+
+### Funcnieos de categoría
+
+- Las funcnoies de clasificación permiten realizar cálculos en un conjunot de filas definido por el usuario. Estas funcnioes incluyen funcnieos de clasificación, deplzamiento, agregao y distribución.
+
+En este ejemplo se usa la función RANK  para calcular una clasificación basada en ListPrice, con el precino más alto clasificado en 1:
+
+
+```sql
+SELECT TOP 100 ProductID, Name, ListPrice,
+RANK() OVER(ORDER BY ListPrice DESC) AS RankByPrice
+FROM Production.Product AS p
+ORDER BY RankByPrice;
+```
+La siguiente consulta selecciona los primeros 100 productos de la tabla "Production.Product" y devuelve las columnas "ProductID", "Name" y "ListPrice". Además, utiliza la función RANK() para asignar una clasificación a cada producto en función de su precio en orden descendente. Cada operación se describe a continuación:
+
+La cláusula "SELECT" selecciona las columnas "ProductID", "Name" y "ListPrice".
+
+La función "RANK()" devuelve la clasificación de cada producto en función de su precio en orden descendente. La cláusula "OVER" indica que se aplicará la función RANK() a todo el conjunto de resultados y la cláusula "ORDER BY ListPrice DESC" indica que se ordenará el conjunto de resultados en orden descendente según el precio.
+
+La cláusula "AS" asigna el alias "RankByPrice" a la clasificación obtenida.
+
+La cláusula "FROM" indica que se seleccionarán los datos de la tabla "Production.Product" y se le asigna el alias "p".
+
+La cláusula "ORDER BY" ordena los resultados por la columna "RankByPrice".
+
+La cláusula "TOP 100" indica que se seleccionarán los primeros 100 productos de la tabla "Production.Product".
+
+En resumen, la consulta selecciona los primeros 100 productos de la tabla "Production.Product" y devuelve su "ProductID", "Name" y "ListPrice". Además, utiliza la función RANK() para asignar una clasificación a cada producto en función de su precio en orden descendente, y los resultados se ordenan según la clasificación obtenida.
+
+### Over
+Puede usar la cláusla OVER para definir particiones o agroupaciones dentro de los datos. Por ejemplo, la consulta siguiente amplía el ejemplo anterior para calcular las clasificaciones basadas en precios de los productos dentro de cada caategoría.
+
+
+```sql
+SELECT c.Name AS Category, p.Name AS Product, ListPrice,
+  RANK() OVER(PARTITION BY c.Name ORDER BY ListPrice DESC) AS RankByPrice
+FROM Production.Product AS p
+JOIN Production.ProductCategory AS c
+ON p.ProductCategoryID = c.ProductcategoryID
+ORDER BY Category, RankByPrice;
+```
+
+**NOTA**: Observe que varias filas tienen el mismo valor de clasificación y que han omitido algunos valores. Esto de debe a que solo estamos usando RANK. En función del requisito, es posible que quiera evitar vínculos con el mismo valor de clasificaicón. Puede controlar el valor de clasificación con otras funcnioes, DENSE_RANK, NTILE y ROW_NUMBER, según sea necesario. Para obtener más información sobre estas funcineos, consulte la documentación de Transct-SQL.
+
+La consulta realiza lo siguiente:
+
+Selecciona las columnas "c.Name" (alias "Category"), "p.Name" (alias "Product"), "ListPrice" y una nueva columna llamada "RankByPrice".
+
+La tabla principal de la consulta es "Production.Product", que se une con "Production.ProductCategory" usando la cláusula JOIN, uniendo las columnas "ProductCategoryID" y "ProductcategoryID".
+
+La función de clasificación "RANK" se usa para asignar un rango a cada producto dentro de su categoría según su precio de lista ("ListPrice"). La cláusula "OVER" especifica que la clasificación se realizará para cada categoría por separado (PARTITION BY c.Name), y que los productos se ordenarán de mayor a menor precio (ORDER BY ListPrice DESC).
+
+El resultado de la función de clasificación se almacena en la columna "RankByPrice".
+
+La consulta ordena los resultados por "Category" y "RankByPrice".
+
+En resumen, la consulta devuelve una lista de productos junto con su precio de lista, su categoría correspondiente y el rango que ocupan en términos de precio dentro de su categoría. Los resultados se ordenan primero por categoría y luego por rango de precio.
+
+
+
+### Funciones de conjuntos de filas
+
+Las funcnies de conjunto de filas devuelven una tabla virtual que se puede usar en la cláusula FROM  como origdne de datos. Esstas funcioes toiman parámetros específicos de la propia función de conjunto de filas. Incluyen OPENDATASROUCE, OPENQUERY OPENWORSET, OPENXML y OPERNJSON.
+las fucnioes IOPENDATASOURCE, OPENQUERY y OPEROWSET permiten pasar una consulta a un servidor de base de datos remoto. A continuación, el servidor remoto devolverá un conjunto de finals de resultados. Por ejemplo, la consulta siguietne usar OPENROWSET para obtener los resultados d euna ocnsulta de una instalncia SQL Server llamada SALSEDEB.
+
+```sql
+SELECT a.*
+FROM OPENROWSET('SQLNCLI', 'Server=SalesDB;Trusted_Connection=yes;',
+    'SELECT Name, ListPrice
+    FROM AdventureWorks.Production.Product') AS a;
+```
+
+La consulta utiliza la función OPENROWSET para obtener los datos de la tabla "Production.Product" de la base de datos "AdventureWorks" y devolverlos en una única tabla.
+
+Los pasos que realiza la consulta son los siguientes:
+
+La función "OPENROWSET" se utiliza para acceder a los datos de una fuente externa y devuelve una tabla.
+
+Se especifica el proveedor OLE DB 'SQLNCLI' para conectarse a la base de datos. Se establece la conexión con el servidor 'SalesDB' y se indica que se debe utilizar la autenticación de Windows ('Trusted_Connection=yes').
+
+Se define la consulta que se utilizará para obtener los datos de la tabla "Production.Product" en la base de datos "AdventureWorks". La consulta selecciona las columnas "Name" y "ListPrice" de la tabla.
+
+La consulta se utiliza como una subconsulta dentro de la función "OPENROWSET" y se asigna el alias "a" a la tabla resultante.
+
+Se utiliza la cláusula "SELECT" para seleccionar todas las columnas de la tabla "a" y se devuelve el resultado de la consulta en una única tabla.
+
+En resumen, la consulta utiliza la función "OPENROWSET" para obtener los datos de una tabla externa y devuelve los resultados en una única tabla que contiene las columnas "Name" y "ListPrice" de la tabla "Production.Product" de la base de datos "AdventureWorks".
+
+Para usar servidores remotos, debe habilitar algunas opciones avanzadas en la instancia de SQL Server en la que se ejecuta la consulta.
+
+Las funciones OPENXML y OPENJSON permiten consultar datos estructurados en formato XML o JSON y extraer valores en un conjunto de filas tabular.
+
+
+## Uso de funciones de agregado
+
+T-SQL  proporciona funcnieos de agregado como SUM, MAX y AVG para realizar cálculos que toman varios valores y devuelven un único resultado.
+
+### Uso de funcinoes de agregado
+
+Al trabajar con funciones de agregado, debe tener en cuenta los siguientes puntos:
+
+Las funciones de agregado devuelven un único valor (escalar) y se pueden usar en instrucciones SELECT casi en cualquier lugar en el que se pueda usar un solo valor. Por ejemplo, estas funciones se pueden usar en las cláusulas SELECT, HAVING y ORDER BY. Sin embargo, no se pueden usar en la cláusula WHERE.
+Las funciones de agregado omiten los valores NULL, excepto cuando se usa COUNT(*).
+Las funciones de agregado de una lista SELECT no tienen un encabezado de columna, a menos que proporcione un alias mediante AS.
+Las funciones de agregado de una lista SELECT funcionan en todas las filas que se pasan a la operación SELECT. Si no hay ninguna cláusula GROUP BY, se resumirán todas las filas que cumplan cualquier filtro de la cláusula WHERE. Obtendrá más información sobre GROUP BY en la unidad siguiente.
+A menos que use GROUP BY, no debe combinar funciones de agregado con columnas no incluidas en las funciones de la misma lista SELECT.
+
+
+### funcnioes de agregado integradas
+
+- Como se mencionnó, Transact-SQL proporciona muchas funcnioes de agregado integradas. Estas son algunas d elas más comunes 
+
+**Nombre de la función** | **Sintaxis** | **Descripción**
+--- | --- |---
+SUM | SUM( *expression*) | Suma todos los valores numéricos no  NULL  de una columna.
+MEDIA | AVG(*expression*) | Promedia todos los valores numéricos no NULL  de una columna (sima/recuento).
+MIN | MIN(expression) | Devuelve el número más pequeño, la fecha y ho ra más tempranas o la cadne aque se produce por primera vez.
+MAX | MAX(expression) | Devuelve le número más grand, la fecha y hora más reciente o la última cadena.
+COUNT o COUNT_BIG | COUNT(*) o COUNT(*expression*) | Con (*), se eucnta todas las filas, incluidas las filas con valores NULL. Cuando se especifica una columna como Iespresión devuelve el recuneto de filas que no son NULL para esa columna. COUNT  devuelve un valor int; COUNT_BIG devuelve un valor big_int.
+
+
+Comprobación de conocimiento
+Completado
+200 XP
+5 minutos
+1. Ejecute la consulta siguiente: SELECT OrderNo, CHOOSE(Status, 'Ordered', 'Shipped', 'Delivered') AS OrderState FROM Sales.Order; Which OrderState. ¿Qué valor OrderState se devuelve para las filas con un valor status de 2?
+
+Enviado
+Correcto. CHOOSE devuelve el valor en función de su posición ordinal basada en 1.
+
+
+Delivered (Entregado)
+
+NULL
+2. Debe devolver el número de clientes de cada ciudad. ¿Qué consulta debo usar?
+
+SELECT City, COUNT(*) AS CustomerCount FROM Sales.Customer;
+
+SELECT City, COUNT(*) AS CustomerCount FROM Sales.Customer GROUP BY City;
+Correcto. Use GROUP BY para agregar por grupos.
+
+
+SELECT City, COUNT(*) AS CustomerCount FROM Sales.Customer ORDER BY City;
+Incorrecto. Use GROUP BY para agregar por grupos.
+
+3. Debe devolver una fila para cada categoría con un precio medio superior a 10,00. ¿Qué consulta debo usar?
+
+SELECT Category, AVG(Price) FROM Store.Product WHERE AVG(Price) > 10.00;
+
+SELECT Category, AVG(Price) FROM Store.Product GROUP BY Category WHERE AVG(Price) > 10.00;
+Incorrecto. Use una cláusula HAVING para filtrar grupos.
+
+
+SELECT Category, AVG(Price) FROM Store.Product GROUP BY Category HAVING AVG(Price) > 10.00;
+Correcto. Use una cláusula HAVING para filtrar grupos.
+3
+
+
+1. Ejecute la consulta siguiente: SELECT OrderNo, CHOOSE(Status, 'Ordered', 'Shipped', 'Delivered') AS OrderState FROM Sales.Order; Which OrderState. ¿Qué valor OrderState se devuelve para las filas con un valor status de 2?
+
+Enviado
+Correcto. CHOOSE devuelve el valor en función de su posición ordinal basada en 1.
+
+
+Delivered (Entregado)
+
+NULL
+2. Debe devolver el número de clientes de cada ciudad. ¿Qué consulta debo usar?
+
+SELECT City, COUNT(*) AS CustomerCount FROM Sales.Customer;
+
+SELECT City, COUNT(*) AS CustomerCount FROM Sales.Customer GROUP BY City;
+Correcto. Use GROUP BY para agregar por grupos.
+
+
+SELECT City, COUNT(*) AS CustomerCount FROM Sales.Customer ORDER BY City;
+3. Debe devolver una fila para cada categoría con un precio medio superior a 10,00. ¿Qué consulta debo usar?
+
+SELECT Category, AVG(Price) FROM Store.Product WHERE AVG(Price) > 10.00;
+
+SELECT Category, AVG(Price) FROM Store.Product GROUP BY Category WHERE AVG(Price) > 10.00;
+
+SELECT Category, AVG(Price) FROM Store.Product GROUP BY Category HAVING AVG(Price) > 10.00;
+Correcto. Use una cláusula HAVING para filtrar grupos.
